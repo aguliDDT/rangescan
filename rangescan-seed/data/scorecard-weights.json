@@ -1,0 +1,38 @@
+{
+  "financial": [
+    {
+      "label": "Sales value",
+      "weightPct": 20
+    },
+    {
+      "label": "Sales growth",
+      "weightPct": 10
+    },
+    {
+      "label": "Trading margin %",
+      "weightPct": 15
+    },
+    {
+      "label": "Rate of sale",
+      "weightPct": 15
+    }
+  ],
+  "operational": [
+    {
+      "label": "Distribution / availability",
+      "weightPct": 15
+    },
+    {
+      "label": "Waste & markdown",
+      "weightPct": 10
+    },
+    {
+      "label": "Case fill / CPC",
+      "weightPct": 5
+    },
+    {
+      "label": "Supplier risk",
+      "weightPct": 10
+    }
+  ]
+}

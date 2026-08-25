@@ -1,0 +1,110 @@
+[
+  {
+    "needState": "Health & Fitness",
+    "portionFormat": "Big Pack",
+    "skuCount": 9,
+    "salesValueGBP": 3172696,
+    "rateOfSalePerStorePerWeekGBP": 18.4,
+    "riskQuartile": 2.3,
+    "longTailPct": 11
+  },
+  {
+    "needState": "Indulgent Treat",
+    "portionFormat": "Multipack",
+    "skuCount": 18,
+    "salesValueGBP": 1655653,
+    "rateOfSalePerStorePerWeekGBP": 6.1,
+    "riskQuartile": 2.9,
+    "longTailPct": 39
+  },
+  {
+    "needState": "Health & Fitness",
+    "portionFormat": "Single Portion",
+    "skuCount": 7,
+    "salesValueGBP": 2429258,
+    "rateOfSalePerStorePerWeekGBP": 17.4,
+    "riskQuartile": 2.3,
+    "longTailPct": 29
+  },
+  {
+    "needState": "Indulgent Treat",
+    "portionFormat": "Big Pack",
+    "skuCount": 16,
+    "salesValueGBP": 3304209,
+    "rateOfSalePerStorePerWeekGBP": 12.4,
+    "riskQuartile": 2,
+    "longTailPct": 6
+  },
+  {
+    "needState": "Health & Fitness",
+    "portionFormat": "Multipack",
+    "skuCount": 10,
+    "salesValueGBP": 1919226,
+    "rateOfSalePerStorePerWeekGBP": 9.9,
+    "riskQuartile": 2.7,
+    "longTailPct": 50
+  },
+  {
+    "needState": "Everyday Family",
+    "portionFormat": "Multipack",
+    "skuCount": 17,
+    "salesValueGBP": 2474883,
+    "rateOfSalePerStorePerWeekGBP": 9.2,
+    "riskQuartile": 2.7,
+    "longTailPct": 24
+  },
+  {
+    "needState": "Kids Lunchbox",
+    "portionFormat": "Big Pack",
+    "skuCount": 6,
+    "salesValueGBP": 1657411,
+    "rateOfSalePerStorePerWeekGBP": 14.9,
+    "riskQuartile": 2,
+    "longTailPct": 17
+  },
+  {
+    "needState": "Everyday Family",
+    "portionFormat": "Big Pack",
+    "skuCount": 12,
+    "salesValueGBP": 1915749,
+    "rateOfSalePerStorePerWeekGBP": 9.8,
+    "riskQuartile": 2.2,
+    "longTailPct": 8
+  },
+  {
+    "needState": "Kids Lunchbox",
+    "portionFormat": "Multipack",
+    "skuCount": 3,
+    "salesValueGBP": 934345,
+    "rateOfSalePerStorePerWeekGBP": 17.8,
+    "riskQuartile": 2.7,
+    "longTailPct": 33
+  },
+  {
+    "needState": "Indulgent Treat",
+    "portionFormat": "Single Portion",
+    "skuCount": 5,
+    "salesValueGBP": 631197,
+    "rateOfSalePerStorePerWeekGBP": 6.7,
+    "riskQuartile": 2.6,
+    "longTailPct": 40
+  },
+  {
+    "needState": "Kids Lunchbox",
+    "portionFormat": "Single Portion",
+    "skuCount": 1,
+    "salesValueGBP": 63587,
+    "rateOfSalePerStorePerWeekGBP": 4.6,
+    "riskQuartile": 3,
+    "longTailPct": 0
+  },
+  {
+    "needState": "Everyday Family",
+    "portionFormat": "Single Portion",
+    "skuCount": 4,
+    "salesValueGBP": 403450,
+    "rateOfSalePerStorePerWeekGBP": 6.1,
+    "riskQuartile": 3,
+    "longTailPct": 50
+  }
+]

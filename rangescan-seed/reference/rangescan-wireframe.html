@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RANGE/SCAN — Rapid Range &amp; Assortment Optimisation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============ TOKENS ============ */
+:root{
+  --ink:#0E211A;
+  --pine:#0F2A21;
+  --pine-soft:#173B2E;
+  --emerald:#1F8A6E;
+  --emerald-light:#2FAE88;
+  --emerald-wash:#E7F3EE;
+  --amber:#E2A03F;
+  --amber-wash:#FBF1DE;
+  --red:#D14B3D;
+  --red-wash:#FBEAE7;
+  --canvas:#F3F5F1;
+  --surface:#FFFFFF;
+  --border:#E2E7E1;
+  --border-soft:#EDF0EA;
+  --text:#16241D;
+  --text-mute:#5B665F;
+  --text-soft:#8B948D;
+  --font-display:'Fraunces', serif;
+  --font-body:'Inter', sans-serif;
+  --font-mono:'IBM Plex Mono', monospace;
+  --radius:10px;
+  --radius-lg:16px;
+  --shadow:0 1px 2px rgba(14,33,26,0.04), 0 8px 24px -12px rgba(14,33,26,0.12);
+}
+*,*::before,*::after{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:var(--font-body);
+  background:var(--canvas);
+  color:var(--text);
+  font-size:14px;
+  line-height:1.45;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{font-family:var(--font-display);margin:0;font-weight:600;color:var(--ink);}
+p{margin:0;}
+button{font-family:var(--font-body);cursor:pointer;}
+::selection{background:var(--emerald-light);color:#fff;}
+.mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums;}
+@media (prefers-reduced-motion: reduce){ *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;} }
+
+/* ============ LAYOUT ============ */
+.app{display:flex;min-height:100vh;}
+
+/* ---- Sidebar ---- */
+.sidebar{
+  width:248px;flex:0 0 248px;background:var(--pine);color:#EAF3EE;
+  display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;
+  padding:22px 16px 16px;
+}
+.brand{display:flex;align-items:center;gap:10px;padding:0 4px 20px;}
+.brand-mark{width:30px;height:30px;border-radius:8px;position:relative;overflow:hidden;
+  background:linear-gradient(160deg,#173B2E,#0B1E17);border:1px solid rgba(234,243,238,0.15);flex:0 0 30px;}
+.brand-mark::after{
+  content:"";position:absolute;top:0;bottom:0;width:40%;
+  background:linear-gradient(90deg,transparent,rgba(47,174,136,0.9),transparent);
+  animation:sweep 3.2s linear infinite;
+}
+@keyframes sweep{ 0%{left:-40%;} 100%{left:110%;} }
+.brand-word{font-family:var(--font-display);font-weight:600;font-size:16.5px;letter-spacing:0.2px;color:#F4FAF7;line-height:1.1;}
+.brand-sub{display:block;font-family:var(--font-body);font-weight:500;font-size:10px;letter-spacing:0.06em;text-transform:uppercase;color:#8FB6A5;margin-top:2px;}
+
+.nav-track{position:relative;padding-left:2px;margin-top:6px;}
+.nav-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px;}
+.nav-item{display:flex;align-items:center;gap:11px;padding:9px 10px;border-radius:9px;
+  color:#C7DED2;text-decoration:none;font-size:13.2px;font-weight:500;position:relative;
+  border:1px solid transparent;background:none;width:100%;text-align:left;}
+.nav-item:hover{background:rgba(234,243,238,0.06);color:#F4FAF7;}
+.nav-item.active{background:rgba(47,174,136,0.16);border-color:rgba(47,174,136,0.35);color:#F4FAF7;}
+.nav-num{
+  width:21px;height:21px;border-radius:50%;flex:0 0 21px;display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-mono);font-size:10px;border:1.5px solid #4C6C5E;color:#9FC0AF;background:var(--pine);
+}
+.nav-item.done .nav-num{background:var(--emerald);border-color:var(--emerald);color:#fff;}
+.nav-item.active .nav-num{border-color:var(--amber);color:var(--amber);}
+.nav-item.overview-item .nav-num{border-style:dashed;}
+.nav-label small{display:block;font-size:10px;color:#84A594;font-weight:500;margin-top:1px;}
+.nav-divider{height:1px;background:rgba(234,243,238,0.1);margin:10px 4px 8px;}
+
+.sidebar-foot{margin-top:auto;padding-top:14px;border-top:1px solid rgba(234,243,238,0.12);}
+.project-chip{background:rgba(234,243,238,0.05);border:1px solid rgba(234,243,238,0.12);border-radius:10px;padding:11px 12px;}
+.project-chip .pname{font-size:12.5px;font-weight:600;color:#F4FAF7;}
+.project-chip .pcat{font-size:11.5px;color:#9FC0AF;margin-top:1px;}
+.days-pill{display:inline-flex;align-items:center;gap:6px;margin-top:9px;background:var(--amber-wash);
+  color:#8A5A11;font-family:var(--font-mono);font-size:11px;padding:3px 9px;border-radius:20px;font-weight:600;}
+.days-pill::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--amber);}
+.user-row{display:flex;align-items:center;gap:9px;margin-top:12px;padding:0 2px;}
+.avatar{width:28px;height:28px;border-radius:50%;background:var(--emerald);color:#fff;font-size:11px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);}
+.user-row .uname{font-size:12px;font-weight:600;color:#F4FAF7;}
+.user-row .urole{font-size:10.5px;color:#89AC9A;}
+
+/* ---- Main ---- */
+.main{margin-left:248px;flex:1;min-width:0;}
+.view{display:none;padding:26px 34px 60px;max-width:1360px;}
+.view.active{display:block;animation:fadein .25s ease;}
+@keyframes fadein{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+
+.topbar{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:22px;flex-wrap:wrap;}
+.crumbs{font-size:11.5px;color:var(--text-soft);font-weight:500;letter-spacing:.01em;margin-bottom:6px;}
+.crumbs b{color:var(--text-mute);}
+.stage-title{font-size:26px;letter-spacing:-0.01em;}
+.stage-desc{color:var(--text-mute);font-size:13px;margin-top:5px;max-width:560px;}
+.topbar-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+
+.chip{
+  display:inline-flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--border);
+  border-radius:20px;padding:6px 12px;font-size:12px;font-weight:500;color:var(--text-mute);
+}
+.chip select{border:none;background:none;font-family:var(--font-body);font-size:12px;color:var(--text);font-weight:600;}
+.btn{
+  display:inline-flex;align-items:center;gap:7px;border-radius:9px;padding:8px 14px;font-size:12.5px;font-weight:600;
+  border:1px solid var(--border);background:var(--surface);color:var(--text);white-space:nowrap;
+}
+.btn:hover{border-color:#C7D2C9;}
+.btn-primary{background:var(--pine);color:#fff;border-color:var(--pine);}
+.btn-primary:hover{background:#0B211A;}
+.btn-ghost{border-color:transparent;background:transparent;}
+.btn svg{width:14px;height:14px;}
+
+/* ---- shared components ---- */
+.grid{display:grid;gap:16px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px;box-shadow:var(--shadow);}
+.card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.card-title{font-size:14px;font-weight:700;font-family:var(--font-body);color:var(--ink);}
+.card-eyebrow{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-soft);font-weight:700;margin-bottom:4px;}
+
+.kpi-row{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--border);border:1px solid var(--border);
+  border-radius:var(--radius-lg);overflow:hidden;margin-bottom:22px;}
+.kpi{background:var(--surface);padding:15px 16px;}
+.kpi .kv{font-family:var(--font-mono);font-size:19px;font-weight:600;color:var(--ink);letter-spacing:-0.01em;}
+.kpi .kl{font-size:10.8px;color:var(--text-soft);margin-top:3px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;}
+.kpi .kd{font-size:10.5px;margin-top:4px;font-weight:600;}
+.kd.up{color:var(--emerald);}
+.kd.down{color:var(--red);}
+
+.tag{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:20px;letter-spacing:.02em;}
+.tag-retain{background:var(--emerald-wash);color:#146650;}
+.tag-review{background:var(--amber-wash);color:#8A5A11;}
+.tag-delist{background:var(--red-wash);color:#A5342A;}
+.tag-done{background:var(--emerald-wash);color:#146650;}
+.tag-progress{background:var(--amber-wash);color:#8A5A11;}
+.tag-pending{background:#EEF0EC;color:var(--text-soft);}
+
+.status-dot{width:7px;height:7px;border-radius:50%;display:inline-block;}
+.status-dot.done{background:var(--emerald);}
+.status-dot.progress{background:var(--amber);}
+.status-dot.pending{background:#C6CCC4;}
+
+table{width:100%;border-collapse:collapse;font-size:12.6px;}
+th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-soft);
+  font-weight:700;padding:9px 12px;border-bottom:1px solid var(--border);background:#FAFBF9;position:sticky;top:0;}
+td{padding:9px 12px;border-bottom:1px solid var(--border-soft);color:var(--text);}
+tr:hover td{background:#FAFBF8;}
+.num{font-family:var(--font-mono);text-align:right;}
+.score-cell{font-family:var(--font-mono);font-weight:700;text-align:center;border-radius:6px;padding:3px 0;width:44px;display:inline-block;}
+.score-high{background:#C9EBDD;color:#0E5C46;}
+.score-mid{background:#FBE7B8;color:#7A4E0B;}
+.score-low{background:#F6C9C2;color:#8E2D22;}
+
+/* Right drawer: ranging principles */
+.overlay{position:fixed;inset:0;background:rgba(14,33,26,0.32);opacity:0;pointer-events:none;transition:opacity .2s ease;z-index:40;}
+.overlay.open{opacity:1;pointer-events:auto;}
+.drawer{
+  position:fixed;top:0;right:0;bottom:0;width:420px;background:var(--surface);z-index:41;
+  transform:translateX(100%);transition:transform .28s cubic-bezier(.4,0,.2,1);box-shadow:-16px 0 40px rgba(14,33,26,0.14);
+  display:flex;flex-direction:column;
+}
+.drawer.open{transform:translateX(0);}
+.drawer-head{padding:20px 22px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;}
+.drawer-head h3{font-size:17px;}
+.drawer-head p{font-size:12px;color:var(--text-mute);margin-top:4px;}
+.drawer-close{border:none;background:var(--canvas);width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:0 0 28px;}
+.drawer-body{overflow-y:auto;padding:10px 14px 24px;}
+.principle{border:1px solid var(--border);border-radius:12px;margin:8px 0;overflow:hidden;background:var(--surface);}
+.principle[open]{border-color:#CFE2D8;}
+.principle.focus{border-color:var(--emerald);box-shadow:0 0 0 3px var(--emerald-wash);}
+.principle summary{list-style:none;cursor:pointer;padding:12px 14px;display:flex;align-items:center;gap:10px;}
+.principle summary::-webkit-details-marker{display:none;}
+.p-num{width:24px;height:24px;border-radius:50%;background:var(--canvas);border:1px solid var(--border);
+  font-family:var(--font-mono);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:0 0 24px;color:var(--text-mute);}
+.principle.focus .p-num{background:var(--emerald);border-color:var(--emerald);color:#fff;}
+.p-title{font-size:13px;font-weight:700;color:var(--ink);flex:1;}
+.p-chev{color:var(--text-soft);font-size:11px;transition:transform .15s;}
+.principle[open] .p-chev{transform:rotate(90deg);}
+.principle-body{padding:0 14px 14px 48px;}
+.principle-body ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px;}
+.principle-body li{font-size:12px;color:var(--text-mute);padding-left:14px;position:relative;}
+.principle-body li::before{content:"—";position:absolute;left:0;color:var(--text-soft);}
+.principle-body .tool-ref{margin-top:8px;display:inline-block;font-size:10.8px;background:var(--emerald-wash);color:#146650;
+  padding:3px 9px;border-radius:6px;font-weight:600;}
+
+/* Overview: scan rail */
+.scanrail{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:26px 28px;box-shadow:var(--shadow);margin-bottom:20px;}
+.scanrail-top{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:22px;flex-wrap:wrap;gap:14px;}
+.scanrail-top h2{font-size:21px;}
+.scanrail-top .sub{color:var(--text-mute);font-size:12.8px;margin-top:5px;}
+.timer{text-align:right;}
+.timer .big{font-family:var(--font-mono);font-size:30px;font-weight:600;color:var(--pine);line-height:1;}
+.timer .lab{font-size:10.5px;color:var(--text-soft);text-transform:uppercase;letter-spacing:.05em;font-weight:700;margin-top:4px;}
+.rail{position:relative;display:flex;justify-content:space-between;padding:0 6px;margin-top:8px;}
+.rail::before{content:"";position:absolute;top:15px;left:22px;right:22px;height:2px;background:var(--border);}
+.rail-fill{position:absolute;top:15px;left:22px;height:2px;background:linear-gradient(90deg,var(--emerald),var(--amber));width:40%;}
+.rail-node{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;width:110px;text-align:center;}
+.rail-dot{width:32px;height:32px;border-radius:50%;background:var(--surface);border:2px solid var(--border);
+  display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:12px;font-weight:700;color:var(--text-soft);z-index:1;}
+.rail-node.done .rail-dot{background:var(--emerald);border-color:var(--emerald);color:#fff;}
+.rail-node.active .rail-dot{border-color:var(--amber);color:var(--amber);box-shadow:0 0 0 5px var(--amber-wash);animation:pulse 1.8s infinite;}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 5px var(--amber-wash);}50%{box-shadow:0 0 0 8px var(--amber-wash);}}
+.rail-node .rn-label{font-size:11.5px;font-weight:700;color:var(--text);}
+.rail-node .rn-sub{font-size:10.2px;color:var(--text-soft);}
+
+.stage-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:18px;}
+.stage-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px 17px;box-shadow:var(--shadow);}
+.stage-card .sc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.stage-card .sc-num{font-family:var(--font-mono);font-size:10.5px;color:var(--text-soft);font-weight:700;}
+.stage-card h4{font-size:14.5px;margin:2px 0 6px;}
+.stage-card p{font-size:12.3px;color:var(--text-mute);line-height:1.5;}
+.sc-link{display:inline-flex;align-items:center;gap:4px;margin-top:10px;font-size:12px;font-weight:700;color:var(--emerald);text-decoration:none;border:none;background:none;padding:0;}
+
+.feed{display:flex;flex-direction:column;gap:0;}
+.feed-item{display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--border-soft);}
+.feed-item:last-child{border:none;}
+.feed-icon{width:26px;height:26px;border-radius:7px;background:var(--emerald-wash);color:#146650;flex:0 0 26px;
+  display:flex;align-items:center;justify-content:center;font-size:13px;}
+.feed-text{font-size:12.6px;color:var(--text);}
+.feed-time{font-size:10.8px;color:var(--text-soft);margin-top:2px;font-family:var(--font-mono);}
+
+/* two-col layouts */
+.split{display:grid;grid-template-columns:300px 1fr;gap:16px;align-items:start;}
+.split-rev{display:grid;grid-template-columns:1fr 320px;gap:16px;align-items:start;}
+.stack{display:flex;flex-direction:column;gap:16px;}
+
+/* connector / source list */
+.source-row{display:flex;align-items:center;gap:11px;padding:11px 4px;border-bottom:1px solid var(--border-soft);}
+.source-row:last-child{border:none;}
+.source-ic{width:32px;height:32px;border-radius:8px;background:var(--canvas);display:flex;align-items:center;justify-content:center;font-size:15px;flex:0 0 32px;}
+.source-name{font-size:12.6px;font-weight:600;}
+.source-sub{font-size:11px;color:var(--text-soft);}
+
+.gauge{margin-bottom:14px;}
+.gauge-top{display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;}
+.gauge-top b{font-family:var(--font-mono);}
+.gauge-bar{height:7px;border-radius:20px;background:var(--border-soft);overflow:hidden;}
+.gauge-fill{height:100%;border-radius:20px;background:linear-gradient(90deg,var(--emerald),var(--emerald-light));}
+
+.exc-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:10px 0;border-bottom:1px solid var(--border-soft);}
+.exc-row:last-child{border:none;}
+.exc-title{font-size:12.4px;font-weight:600;}
+.exc-sub{font-size:11.4px;color:var(--text-mute);margin-top:2px;}
+.exc-actions{display:flex;gap:6px;}
+.mini-btn{font-size:11px;font-weight:700;border-radius:7px;padding:5px 10px;border:1px solid var(--border);background:var(--surface);}
+.mini-btn.accept{background:var(--emerald-wash);color:#146650;border-color:transparent;}
+
+/* CDT tree */
+.tree-wrap{overflow-x:auto;padding-bottom:6px;}
+.tree{display:flex;gap:0;min-width:960px;}
+.tree-col{width:200px;flex:0 0 200px;border-right:1px dashed var(--border);padding-right:14px;margin-right:14px;}
+.tree-col:last-child{border-right:none;}
+.tree-col-head{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.tree-stage-num{width:19px;height:19px;border-radius:50%;background:var(--pine);color:#fff;font-family:var(--font-mono);
+  font-size:9.5px;display:flex;align-items:center;justify-content:center;font-weight:700;flex:0 0 19px;}
+.tree-col-title{font-size:11.5px;font-weight:700;color:var(--ink);}
+.tree-col-weight{font-size:10px;color:var(--text-soft);font-family:var(--font-mono);}
+.tree-node{background:var(--canvas);border:1px solid var(--border);border-radius:8px;padding:8px 10px;margin-bottom:8px;
+  font-size:12px;display:flex;justify-content:space-between;align-items:center;gap:6px;}
+.tree-node.leaf{background:var(--emerald-wash);border-color:#CFE7DC;color:#146650;font-weight:600;}
+.tree-node .tw{font-family:var(--font-mono);font-size:10.5px;color:var(--text-soft);}
+.tree-node.leaf .tw{color:#1F8A6E;}
+
+/* scorecard weighting */
+.weight-group{margin-bottom:16px;}
+.weight-group-title{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-soft);font-weight:700;margin-bottom:8px;}
+.weight-row{display:grid;grid-template-columns:1fr 90px 46px;gap:10px;align-items:center;padding:6px 0;}
+.weight-row label{font-size:12.4px;}
+.weight-row input[type=range]{width:100%;accent-color:var(--emerald);}
+.weight-row .wv{font-family:var(--font-mono);font-size:12px;text-align:right;font-weight:600;}
+.weight-total{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);
+  font-size:13px;font-weight:700;}
+.weight-total .wt-val{font-family:var(--font-mono);color:var(--emerald);}
+
+/* ranked bars */
+.rankbar-wrap{position:relative;height:190px;display:flex;align-items:flex-end;gap:3px;padding:0 2px;margin-top:8px;}
+.rankbar{flex:1;border-radius:4px 4px 0 0;position:relative;min-width:4px;}
+.rankbar.retain{background:var(--emerald-light);}
+.rankbar.review{background:var(--amber);}
+.rankbar.delist{background:#E28577;}
+.rank-legend{display:flex;gap:16px;margin-top:10px;font-size:11px;color:var(--text-mute);}
+.rank-legend span{display:inline-flex;align-items:center;gap:5px;}
+.rank-legend i{width:9px;height:9px;border-radius:3px;display:inline-block;}
+
+/* quadrant */
+.quad{position:relative;height:340px;border:1px solid var(--border);border-radius:12px;background:var(--surface);overflow:hidden;}
+.quad-zone{position:absolute;left:0;right:0;display:flex;align-items:center;justify-content:flex-end;padding-right:16px;}
+.quad-zone span{font-size:11px;font-weight:700;text-align:right;line-height:1.3;}
+.zone-stars{top:0;height:38%;background:rgba(47,174,136,0.10);color:#146650;}
+.zone-review{top:38%;height:27%;background:rgba(226,160,63,0.14);color:#8A5A11;}
+.zone-laggard{top:65%;height:35%;background:rgba(209,75,61,0.10);color:#A5342A;}
+.dot{position:absolute;width:9px;height:9px;border-radius:50%;background:var(--pine);opacity:0.75;transform:translate(-50%,-50%);}
+.dot.flag{background:var(--red);width:11px;height:11px;box-shadow:0 0 0 3px rgba(209,75,61,0.18);}
+.quad-axis-y{position:absolute;left:8px;top:8px;font-size:10px;color:var(--text-soft);font-weight:700;text-transform:uppercase;letter-spacing:.04em;}
+.quad-axis-x{position:absolute;right:12px;bottom:6px;font-size:10px;color:var(--text-soft);font-weight:700;text-transform:uppercase;letter-spacing:.04em;}
+
+.agent-card{border:1px solid var(--border);border-radius:12px;padding:13px 14px;margin-bottom:10px;background:var(--surface);}
+.agent-card:last-child{margin-bottom:0;}
+.agent-card .ac-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.agent-card .ac-pair{font-size:12.6px;font-weight:700;}
+.agent-card .ac-risk{font-family:var(--font-mono);font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px;}
+.risk-high{background:var(--red-wash);color:#A5342A;}
+.risk-mid{background:var(--amber-wash);color:#8A5A11;}
+.risk-low{background:var(--emerald-wash);color:#146650;}
+.agent-card p{font-size:12px;color:var(--text-mute);line-height:1.5;}
+.agent-card .ac-rec{margin-top:8px;font-size:11.6px;font-weight:600;color:var(--ink);background:var(--canvas);border-radius:7px;padding:6px 9px;}
+
+/* waterfall */
+.waterfall{display:flex;align-items:flex-end;gap:10px;height:280px;padding:20px 6px 0;position:relative;}
+.wf-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;position:relative;}
+.wf-bar{width:66%;border-radius:6px 6px 0 0;position:relative;}
+.wf-bar.total{background:var(--pine);}
+.wf-bar.pos{background:var(--emerald-light);}
+.wf-bar.neg{background:#E28577;}
+.wf-val{position:absolute;top:-22px;left:50%;transform:translateX(-50%);font-family:var(--font-mono);font-size:11.5px;font-weight:700;white-space:nowrap;}
+.wf-label{margin-top:10px;font-size:11px;text-align:center;color:var(--text-mute);font-weight:600;line-height:1.3;}
+.wf-connector{position:absolute;height:1px;background:var(--border);top:0;z-index:0;border-top:1px dashed #C6CCC4;}
+
+.assump-row{margin-bottom:16px;}
+.assump-top{display:flex;justify-content:space-between;font-size:12.4px;font-weight:600;margin-bottom:6px;}
+.assump-top b{font-family:var(--font-mono);color:var(--emerald);}
+input[type=range]{-webkit-appearance:none;height:5px;border-radius:20px;background:var(--border-soft);}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;background:var(--emerald);
+  border:2px solid #fff;box-shadow:0 0 0 1px var(--emerald);cursor:pointer;}
+.scenario-tabs{display:flex;gap:6px;margin-bottom:16px;}
+.scenario-tabs button{flex:1;padding:8px;border-radius:8px;border:1px solid var(--border);background:var(--surface);font-size:12px;font-weight:600;color:var(--text-mute);}
+.scenario-tabs button.active{background:var(--pine);color:#fff;border-color:var(--pine);}
+
+/* planogram */
+.format-tabs{display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap;}
+.format-tabs button{padding:8px 15px;border-radius:20px;border:1px solid var(--border);background:var(--surface);font-size:12.3px;font-weight:600;color:var(--text-mute);}
+.format-tabs button.active{background:var(--emerald-wash);border-color:#CFE7DC;color:#146650;}
+.space-stat{padding:12px 0;border-bottom:1px solid var(--border-soft);}
+.space-stat:last-child{border:none;}
+.space-stat .ss-top{display:flex;justify-content:space-between;font-size:12px;font-weight:700;margin-bottom:6px;}
+.space-stat .ss-sub{font-size:11px;color:var(--text-soft);margin-top:5px;}
+
+.need-cols{display:flex;gap:14px;overflow-x:auto;padding-bottom:8px;}
+.need-col{flex:0 0 168px;}
+.need-col-head{font-size:11.5px;font-weight:700;color:var(--ink);margin-bottom:8px;display:flex;justify-content:space-between;}
+.need-col-head span{font-family:var(--font-mono);font-size:10px;color:var(--text-soft);}
+.tile-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;}
+.tile{aspect-ratio:1;border-radius:8px;position:relative;border:1px solid rgba(0,0,0,0.06);
+  display:flex;align-items:flex-end;padding:5px;font-family:var(--font-mono);font-size:8.5px;color:rgba(255,255,255,0.92);font-weight:600;}
+.tile.locked::before{content:"🔒";position:absolute;top:4px;right:4px;font-size:8px;}
+
+.heat-matrix{width:100%;border-collapse:collapse;font-size:11.5px;}
+.heat-matrix th{background:none;border:none;padding:6px;font-size:10px;text-transform:none;letter-spacing:0;}
+.heat-matrix td{text-align:center;padding:0;border:none;}
+.heat-cell{display:flex;align-items:center;justify-content:center;height:38px;margin:2px;border-radius:6px;font-family:var(--font-mono);
+  font-weight:700;color:#fff;font-size:11.5px;}
+.heat-legend{display:flex;gap:14px;margin-top:12px;font-size:10.8px;color:var(--text-mute);flex-wrap:wrap;}
+.heat-legend span{display:inline-flex;align-items:center;gap:5px;}
+.heat-legend i{width:11px;height:11px;border-radius:3px;}
+
+.checklist{display:flex;flex-direction:column;gap:9px;}
+.checklist li{list-style:none;display:flex;gap:9px;align-items:flex-start;font-size:12.3px;}
+.chk{width:17px;height:17px;border-radius:5px;background:var(--emerald);flex:0 0 17px;display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:11px;margin-top:1px;}
+.chk.pending{background:var(--canvas);border:1.5px solid var(--border);}
+
+.section-note{font-size:11.6px;color:var(--text-soft);margin-top:6px;line-height:1.5;}
+.divider-label{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-soft);font-weight:700;margin:22px 0 12px;}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <div>
+        <div class="brand-word">RANGE / SCAN</div>
+        <span class="brand-sub">Rapid Assortment Optimisation</span>
+      </div>
+    </div>
+
+    <nav class="nav-track">
+      <ul class="nav-list">
+        <li><button class="nav-item overview-item active" data-view="overview"><span class="nav-num">◐</span><span class="nav-label">Overview</span></button></li>
+        <li><button class="nav-item overview-item" data-view="currentrange"><span class="nav-num">▦</span><span class="nav-label">Current Range<small>Baseline diagnostic</small></span></button></li>
+      </ul>
+      <div class="nav-divider"></div>
+      <ul class="nav-list">
+        <li><button class="nav-item done" data-view="ingest"><span class="nav-num">1</span><span class="nav-label">Ingest &amp; Cleanse<small>Agentic data prep</small></span></button></li>
+        <li><button class="nav-item done" data-view="cdt"><span class="nav-num">2</span><span class="nav-label">Decision Trees<small>Customer need states</small></span></button></li>
+        <li><button class="nav-item done" data-view="scorecard"><span class="nav-num">3</span><span class="nav-label">Scorecard<small>SKU performance</small></span></button></li>
+        <li><button class="nav-item active" data-view="duplication"><span class="nav-num">4</span><span class="nav-label">Duplication<small>AI substitutability</small></span></button></li>
+        <li><button class="nav-item" data-view="financial"><span class="nav-num">5</span><span class="nav-label">Financial Impact<small>Sales &amp; margin bridge</small></span></button></li>
+        <li><button class="nav-item" data-view="planogram"><span class="nav-num">6</span><span class="nav-label">Planogram<small>Optimised layout</small></span></button></li>
+      </ul>
+    </nav>
+
+    <div class="sidebar-foot">
+      <div class="project-chip">
+        <div class="pname">Northgate Grocery</div>
+        <div class="pcat">Chilled Yoghurt &amp; Desserts</div>
+        <div class="days-pill">Day 4 of 10</div>
+      </div>
+      <div class="user-row">
+        <div class="avatar">AC</div>
+        <div>
+          <div class="uname">Andrea C.</div>
+          <div class="urole">Consultant · VCS</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <main class="main">
+
+    <!-- ===================== OVERVIEW ===================== -->
+    <section class="view active" id="view-overview">
+      <div class="topbar">
+        <div>
+          <div class="crumbs">Northgate Grocery &nbsp;/&nbsp; <b>Chilled Yoghurt &amp; Desserts</b></div>
+          <h1 class="stage-title">Scan Overview</h1>
+          <p class="stage-desc">A 10-day rapid range scan — from raw EPOS data to an optimised, financially-costed planogram.</p>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn" onclick="openDrawer([])"><span>📐</span> Ranging Principles</button>
+          <button class="btn btn-primary"><span>＋</span> New scan</button>
+        </div>
+      </div>
+
+      <div class="kpi-row">
+        <div class="kpi"><div class="kv">97</div><div class="kl">SKUs in scope</div><div class="kd down">−9 vs current</div></div>
+        <div class="kpi"><div class="kv">£82.1M</div><div class="kl">Sales value</div><div class="kd up">+1.4% YoY</div></div>
+        <div class="kpi"><div class="kv">£22.3M</div><div class="kl">Trading margin</div><div class="kd">27.1%</div></div>
+        <div class="kpi"><div class="kv">£83</div><div class="kl">£ / store / week</div><div class="kd">42.7% full price</div></div>
+        <div class="kpi"><div class="kv">−9</div><div class="kl">Est. range reduction</div><div class="kd up">+£650k margin</div></div>
+        <div class="kpi"><div class="kv">92%</div><div class="kl">Model confidence</div><div class="kd">CDT-weighted</div></div>
+      </div>
+
+      <div class="scanrail">
+        <div class="scanrail-top">
+          <div>
+            <h2>Scan progress</h2>
+            <div class="sub">Duplication &amp; substitutability agents are currently running on the confirmed 97-SKU range.</div>
+          </div>
+          <div class="timer">
+            <div class="big">4<span style="color:var(--text-soft);font-size:20px;">/10</span></div>
+            <div class="lab">Working days elapsed</div>
+          </div>
+        </div>
+        <div class="rail">
+          <div class="rail-fill"></div>
+          <div class="rail-node done"><div class="rail-dot">✓</div><div class="rn-label">Ingest</div><div class="rn-sub">Day 1–2</div></div>
+          <div class="rail-node done"><div class="rail-dot">✓</div><div class="rn-label">Decision Trees</div><div class="rn-sub">Day 2</div></div>
+          <div class="rail-node done"><div class="rail-dot">✓</div><div class="rn-label">Scorecard</div><div class="rn-sub">Day 3</div></div>
+          <div class="rail-node active"><div class="rail-dot">4</div><div class="rn-label">Duplication</div><div class="rn-sub">Day 4 · now</div></div>
+          <div class="rail-node"><div class="rail-dot">5</div><div class="rn-label">Financial Impact</div><div class="rn-sub">Day 5–6</div></div>
+          <div class="rail-node"><div class="rail-dot">6</div><div class="rn-label">Planogram</div><div class="rn-sub">Day 7–9</div></div>
+        </div>
+      </div>
+
+      <div class="split">
+        <div class="stack">
+          <div class="card">
+            <div class="card-eyebrow">Live feed</div>
+            <div class="card-title">Agent activity</div>
+            <div class="feed" style="margin-top:12px;">
+              <div class="feed-item"><div class="feed-icon">⇄</div><div><div class="feed-text"><b>Substitutability Agent</b> flagged 18 duplicate SKU pairs across 6 need-states.</div><div class="feed-time">09:41 · Today</div></div></div>
+              <div class="feed-item"><div class="feed-icon">◎</div><div><div class="feed-text">Quadrant model refreshed with Week 32 EPOS data.</div><div class="feed-time">09:12 · Today</div></div></div>
+              <div class="feed-item"><div class="feed-icon">✓</div><div><div class="feed-text">Scorecard finalised — 12 lines flagged Review, 9 Delist.</div><div class="feed-time">Yesterday</div></div></div>
+              <div class="feed-item"><div class="feed-icon">🌳</div><div><div class="feed-text">3 Customer Decision Trees validated against basket-switching data.</div><div class="feed-time">2 days ago</div></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="stack">
+          <div class="stage-cards" style="grid-template-columns:repeat(3,1fr);">
+            <div class="stage-card"><div class="sc-top"><span class="sc-num">01</span><span class="tag tag-done">Complete</span></div><h4>Ingest &amp; Cleanse</h4><p>108 raw SKUs → 97 confirmed lines. 99.1% commercial hierarchy coverage.</p><button class="sc-link" onclick="showView('ingest')">Open →</button></div>
+            <div class="stage-card"><div class="sc-top"><span class="sc-num">02</span><span class="tag tag-done">Complete</span></div><h4>Decision Trees</h4><p>3 CDTs built. 96% of category sales explained by mission &amp; need-state.</p><button class="sc-link" onclick="showView('cdt')">Open →</button></div>
+            <div class="stage-card"><div class="sc-top"><span class="sc-num">03</span><span class="tag tag-done">Complete</span></div><h4>Scorecard</h4><p>97 SKUs scored. 12 flagged Review, 9 recommended Delist.</p><button class="sc-link" onclick="showView('scorecard')">Open →</button></div>
+            <div class="stage-card"><div class="sc-top"><span class="sc-num">04</span><span class="tag tag-progress">In progress</span></div><h4>Duplication</h4><p>18 duplicate pairs flagged. £340k modelled sales-transfer risk.</p><button class="sc-link" onclick="showView('duplication')">Open →</button></div>
+            <div class="stage-card"><div class="sc-top"><span class="sc-num">05</span><span class="tag tag-pending">Pending</span></div><h4>Financial Impact</h4><p>Awaiting finalised delist list from Duplication stage.</p><button class="sc-link" onclick="showView('financial')">Open →</button></div>
+            <div class="stage-card"><div class="sc-top"><span class="sc-num">06</span><span class="tag tag-pending">Pending</span></div><h4>Planogram</h4><p>Draft layout starts once the range is financially signed off.</p><button class="sc-link" onclick="showView('planogram')">Open →</button></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== CURRENT RANGE (BASELINE) ===================== -->
+    <section class="view" id="view-currentrange">
+      <div class="topbar">
+        <div>
+          <div class="crumbs">Northgate Grocery &nbsp;/&nbsp; Chilled Yoghurt &amp; Desserts &nbsp;/&nbsp; <b>Baseline</b></div>
+          <h1 class="stage-title">Current Range</h1>
+          <p class="stage-desc">The starting picture before any scan action is taken — where sales, risk and the long tail sit today across the raw, uncleansed range.</p>
+        </div>
+        <div class="topbar-actions">
+          <div class="chip">Store format: <select><option>All</option></select></div>
+          <button class="btn" onclick="openDrawer([3])"><span>📐</span> Principle 3</button>
+          <button class="btn btn-primary">Export baseline pack</button>
+        </div>
+      </div>
+
+      <div class="kpi-row">
+        <div class="kpi"><div class="kv">108</div><div class="kl">SKUs (raw range)</div></div>
+        <div class="kpi"><div class="kv">£73.4M</div><div class="kl">Sales value</div></div>
+        <div class="kpi"><div class="kv">£58</div><div class="kl">Avg ROS £/store/wk</div></div>
+        <div class="kpi"><div class="kv">2.2</div><div class="kl">Avg risk quartile</div></div>
+        <div class="kpi"><div class="kv">31</div><div class="kl">SKUs in long tail</div><div class="kd down">29% of range</div></div>
+        <div class="kpi"><div class="kv">75%</div><div class="kl">SKUs = 25% of sales</div><div class="kd down">Simplification opportunity</div></div>
+      </div>
+
+      <div class="card" style="padding:0;overflow:hidden;margin-bottom:16px;">
+        <div style="padding:18px 20px 4px;">
+          <div class="card-eyebrow">By need-state</div>
+          <div class="card-title">The opportunity to simplify</div>
+        </div>
+        <div style="overflow-x:auto;">
+        <table>
+          <thead><tr>
+            <th>Need-state</th><th style="text-align:right;"># of SKUs</th><th style="text-align:right;">Sales £</th>
+            <th style="text-align:right;">ROS £ / store / wk</th><th style="text-align:center;">Sales-at-risk quartile</th>
+            <th style="text-align:center;">% long tail</th>
+          </tr></thead>
+          <tbody>
+            <tr><td>Natural – Big Pack</td><td class="num">14</td><td class="num">£9,800,000</td><td class="num">£61</td><td style="text-align:center;"><span class="score-cell score-high">1.8</span></td><td style="text-align:center;"><span class="score-cell score-high">7%</span></td></tr>
+            <tr><td>Natural – Multipack</td><td class="num">8</td><td class="num">£4,100,000</td><td class="num">£54</td><td style="text-align:center;"><span class="score-cell score-mid">2.4</span></td><td style="text-align:center;"><span class="score-cell score-mid">18%</span></td></tr>
+            <tr><td>Natural – Single Portion</td><td class="num">6</td><td class="num">£2,000,000</td><td class="num">£48</td><td style="text-align:center;"><span class="score-cell score-mid">2.6</span></td><td style="text-align:center;"><span class="score-cell score-mid">22%</span></td></tr>
+            <tr><td>Flavoured – Big Pack</td><td class="num">16</td><td class="num">£14,200,000</td><td class="num">£71</td><td style="text-align:center;"><span class="score-cell score-high">1.6</span></td><td style="text-align:center;"><span class="score-cell score-high">6%</span></td></tr>
+            <tr><td>Flavoured – Multipack</td><td class="num">15</td><td class="num">£9,900,000</td><td class="num">£58</td><td style="text-align:center;"><span class="score-cell score-mid">2.2</span></td><td style="text-align:center;"><span class="score-cell score-mid">15%</span></td></tr>
+            <tr><td>Flavoured – Single Portion</td><td class="num">11</td><td class="num">£5,400,000</td><td class="num">£46</td><td style="text-align:center;"><span class="score-cell score-low">2.8</span></td><td style="text-align:center;"><span class="score-cell score-low">27%</span></td></tr>
+            <tr><td>Kids – Multipack</td><td class="num">10</td><td class="num">£6,700,000</td><td class="num">£64</td><td style="text-align:center;"><span class="score-cell score-mid">1.9</span></td><td style="text-align:center;"><span class="score-cell score-mid">12%</span></td></tr>
+            <tr><td>Kids – Single Portion</td><td class="num">7</td><td class="num">£3,100,000</td><td class="num">£41</td><td style="text-align:center;"><span class="score-cell score-low">3.1</span></td><td style="text-align:center;"><span class="score-cell score-low">34%</span></td></tr>
+            <tr><td>High Protein – Big Pack</td><td class="num">8</td><td class="num">£8,900,000</td><td class="num">£88</td><td style="text-align:center;"><span class="score-cell score-high">1.2</span></td><td style="text-align:center;"><span class="score-cell score-high">3%</span></td></tr>
+            <tr><td>High Protein – Multipack</td><td class="num">6</td><td class="num">£5,600,000</td><td class="num">£79</td><td style="text-align:center;"><span class="score-cell score-high">1.4</span></td><td style="text-align:center;"><span class="score-cell score-high">5%</span></td></tr>
+            <tr><td>Plant-Based – Big Pack</td><td class="num">4</td><td class="num">£2,400,000</td><td class="num">£52</td><td style="text-align:center;"><span class="score-cell score-mid">2.5</span></td><td style="text-align:center;"><span class="score-cell score-mid">20%</span></td></tr>
+            <tr><td>Plant-Based – Multipack</td><td class="num">3</td><td class="num">£1,300,000</td><td class="num">£39</td><td style="text-align:center;"><span class="score-cell score-low">3.3</span></td><td style="text-align:center;"><span class="score-cell score-low">38%</span></td></tr>
+            <tr style="font-weight:700;background:#FAFBF9;"><td>Grand total</td><td class="num">108</td><td class="num">£73,400,000</td><td class="num">£58</td><td style="text-align:center;"><span class="score-cell score-mid">2.2</span></td><td style="text-align:center;"><span class="score-cell score-mid">18%</span></td></tr>
+          </tbody>
+        </table>
+        </div>
+      </div>
+
+      <div class="split-rev">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">Total: Pareto curve</div>
+            <span class="tag tag-pending">Pre-scan baseline</span>
+          </div>
+          <svg viewBox="0 0 600 260" style="width:100%;height:auto;">
+            <rect x="40" y="20" width="108" height="200" fill="var(--emerald)" opacity="0.08"></rect>
+            <rect x="450" y="20" width="130" height="200" fill="var(--red)" opacity="0.07"></rect>
+            <text x="94" y="36" text-anchor="middle" font-family="Inter" font-weight="700" font-size="10.5" fill="#146650">TOP PERFORMERS</text>
+            <text x="515" y="36" text-anchor="middle" font-family="Inter" font-weight="700" font-size="10.5" fill="#A5342A">LOWEST PERFORMERS</text>
+            <line x1="40" y1="220" x2="580" y2="220" stroke="#E2E7E1" stroke-width="1"></line>
+            <line x1="40" y1="20" x2="40" y2="220" stroke="#E2E7E1" stroke-width="1"></line>
+            <line x1="40" y1="220" x2="580" y2="20" stroke="#C6CCC4" stroke-width="1" stroke-dasharray="4 4"></line>
+            <polyline points="40,220 61.6,180 94,160 175,120 283,80 347.8,60 445,40 580,20" fill="none" stroke="#1F8A6E" stroke-width="2.5"></polyline>
+            <g fill="#0F2A21">
+              <circle cx="61.6" cy="180" r="3.5"></circle>
+              <circle cx="94" cy="160" r="3.5"></circle>
+              <circle cx="175" cy="120" r="3.5"></circle>
+              <circle cx="283" cy="80" r="3.5"></circle>
+              <circle cx="347.8" cy="60" r="3.5"></circle>
+              <circle cx="445" cy="40" r="3.5"></circle>
+            </g>
+            <text x="10" y="24" font-family="IBM Plex Mono" font-size="10" fill="#8B948D">100%</text>
+            <text x="10" y="224" font-family="IBM Plex Mono" font-size="10" fill="#8B948D">0%</text>
+            <text x="40" y="238" font-family="IBM Plex Mono" font-size="10" fill="#8B948D">0%</text>
+            <text x="560" y="238" font-family="IBM Plex Mono" font-size="10" fill="#8B948D">100%</text>
+            <text x="300" y="253" text-anchor="middle" font-family="Inter" font-weight="600" font-size="10.5" fill="#5B665F">% of SKUs</text>
+            <text x="-130" y="14" transform="rotate(-90)" text-anchor="middle" font-family="Inter" font-weight="600" font-size="10.5" fill="#5B665F">% of Sales</text>
+          </svg>
+          <p class="section-note">The top 25% of SKUs deliver 75% of category sales; the bottom 25% of SKUs deliver just 4% — the core simplification opportunity the scan will test.</p>
+        </div>
+
+        <div class="card">
+          <div class="card-title" style="margin-bottom:12px;">Pareto breakdown</div>
+          <table>
+            <thead><tr><th>Sales band</th><th style="text-align:right;">% SKUs</th><th style="text-align:right;">% Sales</th><th style="text-align:right;">Sales / SKU</th></tr></thead>
+            <tbody>
+              <tr><td>0–20%</td><td class="num">4%</td><td class="num">20%</td><td class="num">£410,500</td></tr>
+              <tr><td>21–30%</td><td class="num">6%</td><td class="num">10%</td><td class="num">£136,800</td></tr>
+              <tr><td>31–50%</td><td class="num">15%</td><td class="num">20%</td><td class="num">£109,600</td></tr>
+              <tr><td>51–70%</td><td class="num">20%</td><td class="num">20%</td><td class="num">£82,100</td></tr>
+              <tr><td>71–80%</td><td class="num">12%</td><td class="num">10%</td><td class="num">£68,400</td></tr>
+              <tr><td>81–90%</td><td class="num">18%</td><td class="num">10%</td><td class="num">£45,600</td></tr>
+              <tr><td>91–100%</td><td class="num">25%</td><td class="num">10%</td><td class="num">£32,800</td></tr>
+              <tr style="font-weight:700;background:#FAFBF9;"><td>Total</td><td class="num">100%</td><td class="num">100%</td><td class="num">£84,600 avg</td></tr>
+            </tbody>
+          </table>
+          <p class="section-note">Bands are ranked by cumulative sales contribution, highest-selling SKUs first — the same lens the Scorecard stage will refine with financial and operational weighting.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 1. INGEST ===================== -->
+    <section class="view" id="view-ingest">
+      <div class="topbar">
+        <div>
+          <div class="crumbs">Northgate Grocery &nbsp;/&nbsp; Chilled Yoghurt &amp; Desserts &nbsp;/&nbsp; <b>Stage 1</b></div>
+          <h1 class="stage-title">Data Ingestion &amp; Cleansing</h1>
+          <p class="stage-desc">Agentic AI connects, standardises and maps raw source data to the commercial hierarchy — no manual VLOOKUPs.</p>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn" onclick="openDrawer([1])"><span>📐</span> Principle 1</button>
+          <button class="btn btn-primary">Re-run cleansing agent</button>
+        </div>
+      </div>
+
+      <div class="split">
+        <div class="stack">
+          <div class="card">
+            <div class="card-eyebrow">Connected sources</div>
+            <div class="card-title">Data feeds</div>
+            <div style="margin-top:10px;">
+              <div class="source-row"><div class="source-ic">🧾</div><div style="flex:1;"><div class="source-name">EPOS sales &amp; volume</div><div class="source-sub">104 weeks · 403 stores</div></div><span class="tag tag-done">Complete</span></div>
+              <div class="source-row"><div class="source-ic">📊</div><div style="flex:1;"><div class="source-name">Nielsen IQ market data</div><div class="source-sub">Category under/overs</div></div><span class="tag tag-done">Complete</span></div>
+              <div class="source-row"><div class="source-ic">🧺</div><div style="flex:1;"><div class="source-name">Loyalty &amp; basket data</div><div class="source-sub">Switching &amp; substitution</div></div><span class="tag tag-done">Complete</span></div>
+              <div class="source-row"><div class="source-ic">🏷️</div><div style="flex:1;"><div class="source-name">Supplier cost &amp; terms</div><div class="source-sub">3 suppliers reconciled</div></div><span class="tag tag-done">Complete</span></div>
+              <div class="source-row"><div class="source-ic">🗺️</div><div style="flex:1;"><div class="source-name">Planogram / space file</div><div class="source-sub">4 store formats</div></div><span class="tag tag-progress">Processing</span></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-eyebrow">Data quality</div>
+            <div class="card-title">Cleansing scorecard</div>
+            <div style="margin-top:14px;">
+              <div class="gauge"><div class="gauge-top"><span>Completeness</span><b>98.2%</b></div><div class="gauge-bar"><div class="gauge-fill" style="width:98%;"></div></div></div>
+              <div class="gauge"><div class="gauge-top"><span>Consistency</span><b>94.0%</b></div><div class="gauge-bar"><div class="gauge-fill" style="width:94%;"></div></div></div>
+              <div class="gauge"><div class="gauge-top"><span>Hierarchy coverage</span><b>99.1%</b></div><div class="gauge-bar"><div class="gauge-fill" style="width:99%;"></div></div></div>
+              <div class="gauge"><div class="gauge-top"><span>Market data match rate</span><b>92.4%</b></div><div class="gauge-bar"><div class="gauge-fill" style="width:92%;background:linear-gradient(90deg,var(--amber),#EDC077);"></div></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="stack">
+          <div class="card">
+            <div class="card-eyebrow">Agentic AI · running log</div>
+            <div class="card-title">Cleansing activity</div>
+            <div class="feed" style="margin-top:10px;">
+              <div class="feed-item"><div class="feed-icon">✓</div><div><div class="feed-text">Standardised 108 raw SKU descriptions to a common naming convention.</div><div class="feed-time">08:02</div></div></div>
+              <div class="feed-item"><div class="feed-icon">🌳</div><div><div class="feed-text">Mapped 108 lines to the Commercial Hierarchy (Class → Sub-class) — <b>99.1%</b> coverage on first pass.</div><div class="feed-time">08:06</div></div></div>
+              <div class="feed-item"><div class="feed-icon">⚠️</div><div><div class="feed-text">Flagged 11 duplicate barcodes across 2 suppliers for manual review.</div><div class="feed-time">08:14</div></div></div>
+              <div class="feed-item"><div class="feed-icon">🔗</div><div><div class="feed-text">Reconciled 3 naming variants of "Branded – Product 09" to a single SKU key.</div><div class="feed-time">08:21</div></div></div>
+              <div class="feed-item"><div class="feed-icon">📎</div><div><div class="feed-text">Joined Nielsen category data to 92.4% of lines by GTIN; 8 lines queued for fuzzy match.</div><div class="feed-time">08:33</div></div></div>
+              <div class="feed-item"><div class="feed-icon">✓</div><div><div class="feed-text">Cleansing pass complete — 97 confirmed lines ready for Stage 2.</div><div class="feed-time">08:47</div></div></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><div class="card-title">Exceptions requiring review <span style="color:var(--text-soft);font-weight:500;">(4)</span></div></div>
+            <div>
+              <div class="exc-row">
+                <div><div class="exc-title">Own Brand – Product 08 · duplicate barcode</div><div class="exc-sub">Agent suggests merging with Own Brand – Product 08B (same GTIN, differing supplier code).</div></div>
+                <div class="exc-actions"><button class="mini-btn accept">Accept</button><button class="mini-btn">Review</button></div>
+              </div>
+              <div class="exc-row">
+                <div><div class="exc-title">Branded – Product 61 · missing case size</div><div class="exc-sub">Agent inferred case size = 12 from supplier price file; confidence 87%.</div></div>
+                <div class="exc-actions"><button class="mini-btn accept">Accept</button><button class="mini-btn">Review</button></div>
+              </div>
+              <div class="exc-row">
+                <div><div class="exc-title">Branded – Product 47 · unmatched to Nielsen</div><div class="exc-sub">No fuzzy match above 80% confidence — recommend manual tag.</div></div>
+                <div class="exc-actions"><button class="mini-btn accept">Accept</button><button class="mini-btn">Review</button></div>
+              </div>
+              <div class="exc-row">
+                <div><div class="exc-title">Own Brand – Product 20 · zero sales history</div><div class="exc-sub">Delisted mid-period; agent recommends excluding from scorecard.</div></div>
+                <div class="exc-actions"><button class="mini-btn accept">Accept</button><button class="mini-btn">Review</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 2. CDT ===================== -->
+    <section class="view" id="view-cdt">
+      <div class="topbar">
+        <div>
+          <div class="crumbs">Northgate Grocery &nbsp;/&nbsp; Chilled Yoghurt &amp; Desserts &nbsp;/&nbsp; <b>Stage 2</b></div>
+          <h1 class="stage-title">Customer Decision Trees</h1>
+          <p class="stage-desc">How shoppers navigate the category, in the order they decide — used to define each SKU's role in mission and check range coverage.</p>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn" onclick="openDrawer([1])"><span>📐</span> Principle 1</button>
+          <button class="btn">Compare versions</button>
+          <button class="btn btn-primary">＋ Build tree with agent</button>
+        </div>
+      </div>
+
+      <div class="split">
+        <div class="stack">
+          <div class="card">
+            <div class="card-eyebrow">Tree library</div>
+            <div class="card-title">Versions</div>
+            <div style="margin-top:8px;">
+              <div class="source-row"><div class="source-ic">🌳</div><div style="flex:1;"><div class="source-name">Not Organic — v3</div><div class="source-sub">AI-suggested · 91% variance explained</div></div><span class="tag tag-done">Active</span></div>
+              <div class="source-row"><div class="source-ic">🌱</div><div style="flex:1;"><div class="source-name">Organic — v1</div><div class="source-sub">4.2% of category sales</div></div><span class="tag tag-pending">Draft</span></div>
+              <div class="source-row"><div class="source-ic">🏃</div><div style="flex:1;"><div class="source-name">By mission: On-the-go</div><div class="source-sub">Convenience format only</div></div><span class="tag tag-pending">Draft</span></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-eyebrow">Coverage check</div>
+            <div class="card-title">Hierarchy alignment</div>
+            <div style="margin-top:12px;">
+              <div class="gauge"><div class="gauge-top"><span>Sub-classes represented in tree</span><b>17/20</b></div><div class="gauge-bar"><div class="gauge-fill" style="width:85%;"></div></div></div>
+              <div class="gauge"><div class="gauge-top"><span>Category sales explained</span><b>96%</b></div><div class="gauge-bar"><div class="gauge-fill" style="width:96%;"></div></div></div>
+            </div>
+            <p class="section-note">3 sub-classes not yet represented — Lactose-free (4.2% of sales), Kefir, and Ambient-chilled crossover.</p>
+          </div>
+          <div class="card" style="background:var(--emerald-wash);border-color:#CFE7DC;">
+            <div class="card-eyebrow" style="color:#146650;">AI agent note</div>
+            <p style="font-size:12.4px;color:#12503F;line-height:1.6;">This tree explains <b>91%</b> of basket-switching variance. Recommend adding a <b>Lactose-free</b> branch under Dietary — currently un-mapped despite 4.2% category share and +18% YoY growth.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">Not Organic — v3</div>
+            <span class="tag tag-done">91% variance explained</span>
+          </div>
+          <div class="tree-wrap">
+            <div class="tree">
+              <div class="tree-col">
+                <div class="tree-col-head"><span class="tree-stage-num">1</span><span class="tree-col-title">Portion format</span></div>
+                <div class="tree-node">Big pack <span class="tw">38%</span></div>
+                <div class="tree-node">Multipack of singles <span class="tw">41%</span></div>
+                <div class="tree-node">Single portion <span class="tw">21%</span></div>
+              </div>
+              <div class="tree-col">
+                <div class="tree-col-head"><span class="tree-stage-num">2</span><span class="tree-col-title">Dietary base</span></div>
+                <div class="tree-node">Dairy — cow <span class="tw">76%</span></div>
+                <div class="tree-node">Plant — soya/oat <span class="tw">18%</span></div>
+                <div class="tree-node">Dairy — goat/sheep <span class="tw">6%</span></div>
+              </div>
+              <div class="tree-col">
+                <div class="tree-col-head"><span class="tree-stage-num">3</span><span class="tree-col-title">Flavour profile</span></div>
+                <div class="tree-node">Flavoured <span class="tw">52%</span></div>
+                <div class="tree-node">Natural <span class="tw">31%</span></div>
+                <div class="tree-node">Kids <span class="tw">17%</span></div>
+              </div>
+              <div class="tree-col">
+                <div class="tree-col-head"><span class="tree-stage-num">4</span><span class="tree-col-title">Attribute</span></div>
+                <div class="tree-node">High protein <span class="tw">28%</span></div>
+                <div class="tree-node">Low sugar <span class="tw">19%</span></div>
+                <div class="tree-node">Standard <span class="tw">53%</span></div>
+              </div>
+              <div class="tree-col">
+                <div class="tree-col-head"><span class="tree-stage-num">5</span><span class="tree-col-title">Need-state (leaf)</span></div>
+                <div class="tree-node leaf">Everyday family <span class="tw">34%</span></div>
+                <div class="tree-node leaf">Health &amp; fitness <span class="tw">22%</span></div>
+                <div class="tree-node leaf">Indulgent treat <span class="tw">18%</span></div>
+                <div class="tree-node leaf">Kids lunchbox <span class="tw">17%</span></div>
+                <div class="tree-node leaf">On-the-go <span class="tw">9%</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 3. SCORECARD ===================== -->
+    <section class="view" id="view-scorecard">
+      <div class="topbar">
+        <div>
+          <div class="crumbs">Northgate Grocery &nbsp;/&nbsp; Chilled Yoghurt &amp; Desserts &nbsp;/&nbsp; <b>Stage 3</b></div>
+          <h1 class="stage-title">Range Scorecard</h1>
+          <p class="stage-desc">Weighted financial and operational scoring, ranked against comparable products in the same class and need-state.</p>
+        </div>
+        <div class="topbar-actions">
+          <div class="chip">Store format: <select><option>All</option></select></div>
+          <div class="chip">Need-state: <select><option>All</option></select></div>
+          <button class="btn" onclick="openDrawer([2,3,5])"><span>📐</span> Principles 2·3·5</button>
+        </div>
+      </div>
+
+      <div class="kpi-row">
+        <div class="kpi"><div class="kv">£82.1M</div><div class="kl">Sales value</div></div>
+        <div class="kpi"><div class="kv">37.0M</div><div class="kl">Sales volume</div></div>
+        <div class="kpi"><div class="kv">£22.3M</div><div class="kl">Trading margin</div></div>
+        <div class="kpi"><div class="kv">27.1%</div><div class="kl">Margin %</div></div>
+        <div class="kpi"><div class="kv">£83</div><div class="kl">£ / store / week</div></div>
+        <div class="kpi"><div class="kv">97</div><div class="kl">Number of products</div></div>
+      </div>
+
+      <div class="split">
+        <div class="stack">
+          <div class="card">
+            <div class="card-eyebrow">Configurable</div>
+            <div class="card-title">Scoring weights</div>
+            <div class="weight-group">
+              <div class="weight-group-title">Financial performance · 60%</div>
+              <div class="weight-row"><label>Sales value</label><input type="range" value="20" oninput="updateWeightTotal(this)"><span class="wv">20%</span></div>
+              <div class="weight-row"><label>Sales growth</label><input type="range" value="10" oninput="updateWeightTotal(this)"><span class="wv">10%</span></div>
+              <div class="weight-row"><label>Trading margin %</label><input type="range" value="15" oninput="updateWeightTotal(this)"><span class="wv">15%</span></div>
+              <div class="weight-row"><label>Rate of sale</label><input type="range" value="15" oninput="updateWeightTotal(this)"><span class="wv">15%</span></div>
+            </div>
+            <div class="weight-group">
+              <div class="weight-group-title">Operational performance · 40%</div>
+              <div class="weight-row"><label>Distribution / availability</label><input type="range" value="15" oninput="updateWeightTotal(this)"><span class="wv">15%</span></div>
+              <div class="weight-row"><label>Waste &amp; markdown</label><input type="range" value="10" oninput="updateWeightTotal(this)"><span class="wv">10%</span></div>
+              <div class="weight-row"><label>Case fill / CPC</label><input type="range" value="5" oninput="updateWeightTotal(this)"><span class="wv">5%</span></div>
+              <div class="weight-row"><label>Supplier risk</label><input type="range" value="10" oninput="updateWeightTotal(this)"><span class="wv">10%</span></div>
+            </div>
+            <div class="weight-total"><span>Total weighting</span><span class="wt-val" id="weightTotal">100%</span></div>
+          </div>
+
+          <div class="card">
+            <div class="card-title" style="margin-bottom:10px;">Score distribution</div>
+            <div class="rankbar-wrap" id="rankbars"></div>
+            <div class="rank-legend">
+              <span><i style="background:#E28577;"></i>Delist (&lt;2.0)</span>
+              <span><i style="background:var(--amber);"></i>Review (2.0–3.4)</span>
+              <span><i style="background:var(--emerald-light);"></i>Retain (≥3.4)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="padding:0;overflow:hidden;">
+          <div style="max-height:600px;overflow:auto;">
+          <table>
+            <thead><tr><th>SKU</th><th>Need-state</th><th style="text-align:center;">Score</th><th style="text-align:right;">Sales £</th><th style="text-align:right;">Distribution</th><th>Decision</th></tr></thead>
+            <tbody>
+              <tr><td>Branded – Product 01</td><td>Natural · Big pack</td><td style="text-align:center;"><span class="score-cell score-high">4.6</span></td><td class="num">£1,244,900</td><td class="num">398/400</td><td><span class="tag tag-retain">Retain</span></td></tr>
+              <tr><td>Branded – Product 03</td><td>Flavoured · Multipack</td><td style="text-align:center;"><span class="score-cell score-mid">2.1</span></td><td class="num">£238,400</td><td class="num">210/400</td><td><span class="tag tag-review">Review</span></td></tr>
+              <tr><td>Branded – Product 05</td><td>Kids · Single portion</td><td style="text-align:center;"><span class="score-cell score-high">3.8</span></td><td class="num">£533,700</td><td class="num">380/400</td><td><span class="tag tag-retain">Retain</span></td></tr>
+              <tr><td>Own Brand – Product 08</td><td>Natural · Big pack</td><td style="text-align:center;"><span class="score-cell score-low">1.4</span></td><td class="num">£64,200</td><td class="num">96/400</td><td><span class="tag tag-delist">Delist</span></td></tr>
+              <tr><td>Branded – Product 09</td><td>Flavoured · Big pack</td><td style="text-align:center;"><span class="score-cell score-high">3.2</span></td><td class="num">£647,000</td><td class="num">340/400</td><td><span class="tag tag-retain">Retain</span></td></tr>
+              <tr><td>Own Brand – Product 11</td><td>High protein · Multipack</td><td style="text-align:center;"><span class="score-cell score-high">4.1</span></td><td class="num">£892,100</td><td class="num">372/400</td><td><span class="tag tag-retain">Retain</span></td></tr>
+              <tr><td>Branded – Product 14</td><td>Flavoured · Multipack</td><td style="text-align:center;"><span class="score-cell score-mid">1.9</span></td><td class="num">£147,600</td><td class="num">188/400</td><td><span class="tag tag-review">Review</span></td></tr>
+              <tr><td>Branded – Product 17</td><td>Natural · Single portion</td><td style="text-align:center;"><span class="score-cell score-mid">2.6</span></td><td class="num">£310,900</td><td class="num">260/400</td><td><span class="tag tag-review">Review</span></td></tr>
+              <tr><td>Own Brand – Product 19</td><td>Kids · Multipack</td><td style="text-align:center;"><span class="score-cell score-low">0.9</span></td><td class="num">£22,400</td><td class="num">54/400</td><td><span class="tag tag-delist">Delist</span></td></tr>
+              <tr><td>Branded – Product 23</td><td>High protein · Big pack</td><td style="text-align:center;"><span class="score-cell score-high">4.4</span></td><td class="num">£1,051,300</td><td class="num">396/400</td><td><span class="tag tag-retain">Retain</span></td></tr>
+              <tr><td>Branded – Product 27</td><td>Flavoured · Single portion</td><td style="text-align:center;"><span class="score-cell score-high">3.0</span></td><td class="num">£425,800</td><td class="num">300/400</td><td><span class="tag tag-retain">Retain</span></td></tr>
+              <tr><td>Own Brand – Product 32</td><td>Natural · Multipack</td><td style="text-align:center;"><span class="score-cell score-low">1.2</span></td><td class="num">£58,900</td><td class="num">88/400</td><td><span class="tag tag-delist">Delist</span></td></tr>
+            </tbody>
+          </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 4. DUPLICATION ===================== -->
+    <section class="view" id="view-duplication">
+      <div class="topbar">
+        <div>
+          <div class="crumbs">Northgate Grocery &nbsp;/&nbsp; Chilled Yoghurt &amp; Desserts &nbsp;/&nbsp; <b>Stage 4</b></div>
+          <h1 class="stage-title">Duplication &amp; Substitutability</h1>
+          <p class="stage-desc">AI agents test whether each SKU serves a distinct customer need, or duplicates coverage already met — using substitutability &amp; sales-transfer modelling.</p>
+        </div>
+        <div class="topbar-actions">
+          <div class="chip">Need-state: <select><option>All</option></select></div>
+          <button class="btn" onclick="openDrawer([4])"><span>📐</span> Principle 4</button>
+        </div>
+      </div>
+
+      <div class="split-rev">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">Products mapped on Sales-per-Store &amp; Distribution</div>
+            <span class="tag tag-progress">Live model</span>
+          </div>
+          <div class="quad" id="quadChart">
+            <div class="quad-zone zone-stars"><span>STARS<br>Retain / maximise distribution</span></div>
+            <div class="quad-zone zone-review"><span>Distribute to the right stores</span></div>
+            <div class="quad-zone zone-laggard"><span>LAGGARDS<br>Review listing &amp; distribution</span></div>
+            <div class="quad-axis-y">Sales per store £</div>
+            <div class="quad-axis-x">Store distribution →</div>
+          </div>
+          <p class="section-note">Red-ringed points are SKUs the Substitutability Agent has flagged as duplicating an existing need-state — see cases opposite.</p>
+        </div>
+
+        <div class="stack">
+          <div class="card">
+            <div class="card-eyebrow">Substitutability Agent</div>
+            <div class="card-title">Flagged duplicate pairs (3 of 18)</div>
+            <div style="margin-top:12px;">
+              <div class="agent-card">
+                <div class="ac-top"><span class="ac-pair">Own Brand 32 ↔ Own Brand 08</span><span class="ac-risk risk-high">74% transfer</span></div>
+                <p>Both serve <b>Natural, Big Pack</b> need-state with near-identical brand, flavour and price point. No meaningful choice benefit to shopper.</p>
+                <div class="ac-rec">Recommendation: delist lower performer — Own Brand 32</div>
+              </div>
+              <div class="agent-card">
+                <div class="ac-top"><span class="ac-pair">Branded 14 ↔ Branded 03</span><span class="ac-risk risk-mid">61% transfer</span></div>
+                <p>Same need-state (Flavoured Multipack); differentiated only by supplier promo mechanic, not customer-facing attributes.</p>
+                <div class="ac-rec">Recommendation: consolidate to a single SKU</div>
+              </div>
+              <div class="agent-card">
+                <div class="ac-top"><span class="ac-pair">Own Brand 19 ↔ Branded 05</span><span class="ac-risk risk-low">18% transfer</span></div>
+                <p>Same need-state (Kids) but different brand tier and price point — attracts a materially different, value-conscious shopper.</p>
+                <div class="ac-rec">Recommendation: retain both</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 5. FINANCIAL IMPACT ===================== -->
+    <section class="view" id="view-financial">
+      <div class="topbar">
+        <div>
+          <div class="crumbs">Northgate Grocery &nbsp;/&nbsp; Chilled Yoghurt &amp; Desserts &nbsp;/&nbsp; <b>Stage 5</b></div>
+          <h1 class="stage-title">Financial Impact</h1>
+          <p class="stage-desc">Sales &amp; margin bridge from current to proposed range, applying sales-transfer assumptions to delisted lines.</p>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn" onclick="openDrawer([6])"><span>📐</span> Principle 6</button>
+          <button class="btn btn-primary">Export to Excel</button>
+        </div>
+      </div>
+
+      <div class="kpi-row">
+        <div class="kpi"><div class="kv">£22.30M</div><div class="kl">Current margin</div></div>
+        <div class="kpi"><div class="kv">£22.95M</div><div class="kl">Proposed margin</div></div>
+        <div class="kpi"><div class="kv">+£650k</div><div class="kl">Net uplift</div><div class="kd up">+2.9%</div></div>
+        <div class="kpi"><div class="kv">88</div><div class="kl">Proposed SKU count</div><div class="kd down">−9 SKUs</div></div>
+        <div class="kpi"><div class="kv">65%</div><div class="kl">Transfer to retained range</div></div>
+        <div class="kpi"><div class="kv">15%</div><div class="kl">Genuine sales loss</div></div>
+      </div>
+
+      <div class="split-rev">
+        <div class="card">
+          <div class="card-title" style="margin-bottom:6px;">Sales &amp; margin impact bridge (£'000)</div>
+          <div class="waterfall" id="waterfall"></div>
+        </div>
+        <div class="stack">
+          <div class="card">
+            <div class="card-eyebrow">Editable</div>
+            <div class="card-title">Sales transfer assumptions</div>
+            <div style="margin-top:14px;">
+              <div class="assump-row"><div class="assump-top"><span>Transfer to retained range</span><b>65%</b></div><input type="range" value="65"></div>
+              <div class="assump-row"><div class="assump-top"><span>Transfer to new NPD lines</span><b>20%</b></div><input type="range" value="20"></div>
+              <div class="assump-row"><div class="assump-top"><span>Genuine loss (no substitute)</span><b>15%</b></div><input type="range" value="15"></div>
+            </div>
+            <div class="card-eyebrow" style="margin-top:6px;">Scenario</div>
+            <div class="scenario-tabs">
+              <button>Conservative</button><button class="active">Base</button><button>Aggressive</button>
+            </div>
+            <p class="section-note">Base case assumes historic switching-rate elasticity from loyalty basket data; Aggressive assumes higher recapture via improved availability of retained lines.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 6. PLANOGRAM ===================== -->
+    <section class="view" id="view-planogram">
+      <div class="topbar">
+        <div>
+          <div class="crumbs">Northgate Grocery &nbsp;/&nbsp; Chilled Yoghurt &amp; Desserts &nbsp;/&nbsp; <b>Stage 6</b></div>
+          <h1 class="stage-title">Optimised Planogram</h1>
+          <p class="stage-desc">Space allocation and merchandising sequence for the proposed 88-SKU range, built need-state first for ease of shop.</p>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn" onclick="openDrawer([7])"><span>📐</span> Principle 7</button>
+          <button class="btn btn-primary">Export planogram</button>
+        </div>
+      </div>
+
+      <div class="format-tabs">
+        <button class="active">Hypermarket</button>
+        <button>Supermarket</button>
+        <button>Metro / Convenience</button>
+        <button>Small format</button>
+      </div>
+
+      <div class="split">
+        <div class="stack">
+          <div class="card">
+            <div class="card-eyebrow">Constraints</div>
+            <div class="card-title">Space — Hypermarket</div>
+            <div style="margin-top:6px;">
+              <div class="space-stat"><div class="ss-top"><span>Linear space</span><span class="mono">1,057cm</span></div><div class="gauge-bar"><div class="gauge-fill" style="width:91%;"></div></div><div class="ss-sub">9cm free · 4/4 stores allocated</div></div>
+              <div class="space-stat"><div class="ss-top"><span>SKU count</span><span class="mono">34</span></div><div class="gauge-bar"><div class="gauge-fill" style="width:78%;"></div></div><div class="ss-sub">−4 vs current range</div></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-eyebrow">Principle 7</div>
+            <div class="card-title">Merchandising checklist</div>
+            <ul class="checklist" style="margin-top:10px;">
+              <li><span class="chk">✓</span>Brand-blocked within each need-state column</li>
+              <li><span class="chk">✓</span>GBB (good–better–best) navigation left to right</li>
+              <li><span class="chk">✓</span>Grouped by customer need-state, not just brand</li>
+              <li><span class="chk pending"></span>Facings optimised vs. next-best-performer sales</li>
+              <li><span class="chk pending"></span>Signed off against Macro &amp; Midi space plan</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="stack">
+          <div class="card">
+            <div class="card-head">
+              <div class="card-title">Shelf layout — grouped by need-state</div>
+              <span class="tag tag-progress">Draft v2</span>
+            </div>
+            <div class="need-cols">
+              <div class="need-col">
+                <div class="need-col-head">Everyday family <span>287cm</span></div>
+                <div class="tile-grid">
+                  <div class="tile locked" style="background:#1F8A6E;">B-01</div>
+                  <div class="tile locked" style="background:#2FAE88;">B-09</div>
+                  <div class="tile" style="background:#7FC7AE;">OB-11</div>
+                  <div class="tile" style="background:#A9D8C6;">B-23</div>
+                </div>
+              </div>
+              <div class="need-col">
+                <div class="need-col-head">Health &amp; fitness <span>198cm</span></div>
+                <div class="tile-grid">
+                  <div class="tile locked" style="background:#123328;">OB-11</div>
+                  <div class="tile" style="background:#2FAE88;">B-23</div>
+                  <div class="tile" style="background:#7FC7AE;">B-45</div>
+                  <div class="tile" style="background:#CFE7DC;color:#12503F;">B-51</div>
+                </div>
+              </div>
+              <div class="need-col">
+                <div class="need-col-head">Indulgent treat <span>176cm</span></div>
+                <div class="tile-grid">
+                  <div class="tile" style="background:#E2A03F;">B-09</div>
+                  <div class="tile" style="background:#EDC077;color:#5A3B0A;">B-27</div>
+                  <div class="tile" style="background:#F4DFAE;color:#5A3B0A;">B-33</div>
+                </div>
+              </div>
+              <div class="need-col">
+                <div class="need-col-head">Kids lunchbox <span>162cm</span></div>
+                <div class="tile-grid">
+                  <div class="tile locked" style="background:#D14B3D;">B-05</div>
+                  <div class="tile" style="background:#E28577;">B-41</div>
+                  <div class="tile" style="background:#F2BEB6;color:#7A281F;">B-58</div>
+                </div>
+              </div>
+              <div class="need-col">
+                <div class="need-col-head">On-the-go <span>96cm</span></div>
+                <div class="tile-grid">
+                  <div class="tile" style="background:#5B665F;">B-63</div>
+                  <div class="tile" style="background:#8B948D;">B-70</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title" style="margin-bottom:12px;">Macro / Midi space allocation — need-state × store format</div>
+            <table class="heat-matrix">
+              <thead><tr><th></th><th>Hyper</th><th>Super</th><th>Metro</th><th>Small</th></tr></thead>
+              <tbody id="heatBody"></tbody>
+            </table>
+            <div class="heat-legend">
+              <span><i style="background:#D14B3D;"></i>Under-spaced &lt;75%</span>
+              <span><i style="background:#E2A03F;"></i>75–90%</span>
+              <span><i style="background:#2FAE88;"></i>90–110% aligned</span>
+              <span><i style="background:#123328;"></i>110%+ over-spaced</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ============ RANGING PRINCIPLES DRAWER ============ -->
+<div class="overlay" id="overlay" onclick="closeDrawer()"></div>
+<aside class="drawer" id="drawer">
+  <div class="drawer-head">
+    <div>
+      <h3>Ranging principles</h3>
+      <p>The 7-point framework every scorecard decision and planogram call is tested against.</p>
+    </div>
+    <button class="drawer-close" onclick="closeDrawer()">✕</button>
+  </div>
+  <div class="drawer-body" id="principlesBody">
+    <!-- populated by JS -->
+  </div>
+</aside>
+
+<script>
+const PRINCIPLES = [
+  {n:1, title:"Define role in customer mission", bullets:[
+    "Does it have a defined shopping mission / need-state it serves in convenience?",
+    "Is it a strategic product that drives customer perception of range credibility?",
+    "Does it represent category market diamonds, growth trends and innovation spaces?",
+    "Use of Commercial Hierarchy (Class–Subclass) to ensure coverage.",
+    "Use of Customer Decision Trees to ensure coverage.",
+    "Use of Nielsen market data under/overs opportunities."
+  ], tool:"Stages 1 & 2 — Ingest, Decision Trees"},
+  {n:2, title:"Define role in target range architecture", bullets:[
+    "Does it contribute to a specific tier (GBB / price ladder / value entry point)?",
+    "Is it leading to the desired branded vs. own-brand mix?",
+    "Does contribution align with the value strategy vs. competitors?",
+    "Use of pricing pyramid and competitor price benchmarking."
+  ], tool:"Stage 3 — Scorecard"},
+  {n:3, title:"Assess SKU performance using scorecard", bullets:[
+    "Does it outperform comparable products in its class and category?",
+    "Is it underperforming and can its financial contribution be justified?",
+    "If lower-performing, is it essential for mission fulfilment (Principle 1)?",
+    "Use of Scorecard method."
+  ], tool:"Stage 3 — Scorecard"},
+  {n:4, title:"Consider assortment duplication & transferability", bullets:[
+    "Is it serving the same customer need as other products already in range?",
+    "Is it duplicative in brand, flavour, format, pack size and price point?",
+    "If duplicative, does it improve choice materially or attract different shoppers?",
+    "Use of substitutability / SBBs to assess incrementality vs. substitution."
+  ], tool:"Stage 4 — Duplication & Substitutability"},
+  {n:5, title:"Consider operational complexity", bullets:[
+    "Does it add disproportionate operational complexity for limited benefit?",
+    "Are case size and shelf life optimised for format and sell-through?",
+    "Does it contribute to high waste, markdown or shrink?",
+    "Does it increase availability risk (e.g. supplier diversification)?",
+    "Use of CTS (cost-to-serve) model."
+  ], tool:"Stage 3 — Scorecard (operational weighting)"},
+  {n:6, title:"Apply range monetisation lens", bullets:[
+    "Does it secure supplier investment (promo, markdown funding, NPD launches)?",
+    "Is it related to JBP or solus agreements backing fewer brands more heavily?",
+    "Can cost/margin improve via case-size optimisation, MOQ or terms negotiation?",
+    "Use approach on \"Monetising Range Change\"."
+  ], tool:"Stage 5 — Financial Impact"},
+  {n:7, title:"Apply merchandising & ease-of-shop principles", bullets:[
+    "Is the product part of a brand block?",
+    "Is it positioned in line with clear GBB navigation?",
+    "Are customer needs grouped how customers actually shop the category?",
+    "Are facings optimised vs. diminishing incremental sales?",
+    "Does it fit an optimised Macro and Midi space allocation?",
+    "Use merchandising principles doc."
+  ], tool:"Stage 6 — Planogram"}
+];
+
+function renderPrinciples(focusArr){
+  const body = document.getElementById('principlesBody');
+  body.innerHTML = '';
+  PRINCIPLES.forEach(p=>{
+    const isFocus = focusArr.includes(p.n);
+    const det = document.createElement('details');
+    det.className = 'principle' + (isFocus ? ' focus' : '');
+    if(isFocus) det.setAttribute('open','');
+    det.innerHTML = `
+      <summary>
+        <span class="p-num">${p.n}</span>
+        <span class="p-title">${p.title}</span>
+        <span class="p-chev">▸</span>
+      </summary>
+      <div class="principle-body">
+        <ul>${p.bullets.map(b=>`<li>${b}</li>`).join('')}</ul>
+        <span class="tool-ref">Addressed in ${p.tool}</span>
+      </div>`;
+    body.appendChild(det);
+  });
+}
+function openDrawer(focusArr){
+  renderPrinciples(focusArr);
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('overlay').classList.add('open');
+}
+function closeDrawer(){
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('overlay').classList.remove('open');
+}
+
+function showView(name){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const target = document.querySelector(`.nav-item[data-view="${name}"]`);
+  if(target) target.classList.add('active');
+  window.scrollTo({top:0,behavior:'instant'});
+}
+document.querySelectorAll('.nav-item[data-view]').forEach(btn=>{
+  btn.addEventListener('click', ()=> showView(btn.getAttribute('data-view')));
+});
+
+function updateWeightTotal(el){
+  const rows = document.querySelectorAll('.weight-row input[type=range]');
+  let total = 0;
+  rows.forEach(r=>{ total += Number(r.value); });
+  el.parentElement.querySelector('.wv').textContent = el.value + '%';
+  document.getElementById('weightTotal').textContent = total + '%';
+}
+
+// Score distribution ranked bars
+(function(){
+  const scores = [4.6,4.4,4.1,3.8,3.2,3.0,2.6,2.1,1.9,1.4,1.2,0.9,
+    4.0,3.6,3.3,3.1,2.9,2.7,2.4,2.2,2.0,1.8,1.6,1.1,0.7,3.9,3.5,3.4,3.0,2.8];
+  scores.sort((a,b)=>b-a);
+  const wrap = document.getElementById('rankbars');
+  scores.forEach(s=>{
+    const bar = document.createElement('div');
+    const cls = s>=3.4 ? 'retain' : (s>=2.0 ? 'review':'delist');
+    bar.className = 'rankbar '+cls;
+    bar.style.height = (s/4.8*100)+'%';
+    bar.title = 'Score '+s;
+    wrap.appendChild(bar);
+  });
+})();
+
+// Quadrant dots
+(function(){
+  const q = document.getElementById('quadChart');
+  const flagged = [7,15,22];
+  for(let i=0;i<70;i++){
+    const d = document.createElement('div');
+    const isStar = i%4===0;
+    const isLag = i%3===0 && !isStar;
+    let top, left;
+    if(isStar){ top = 5+Math.random()*32; left = 55+Math.random()*40; }
+    else if(isLag){ top = 68+Math.random()*28; left = 10+Math.random()*80; }
+    else { top = 40+Math.random()*24; left = 20+Math.random()*70; }
+    d.className = 'dot' + (flagged.includes(i) ? ' flag':'');
+    d.style.top = top+'%';
+    d.style.left = left+'%';
+    q.appendChild(d);
+  }
+})();
+
+// Waterfall
+(function(){
+  const data = [
+    {label:'Current range', value:22300, type:'total'},
+    {label:'Delists', value:-1840, type:'neg'},
+    {label:'Substitution effect', value:690, type:'pos'},
+    {label:'New lines added', value:1240, type:'pos'},
+    {label:'Higher sales density', value:560, type:'pos'},
+    {label:'New proposed range', value:22950, type:'total'}
+  ];
+  const wrap = document.getElementById('waterfall');
+  const maxV = 23500;
+  let running = 0;
+  data.forEach((d,i)=>{
+    const col = document.createElement('div');
+    col.className = 'wf-col';
+    let base, height, cls;
+    if(d.type==='total'){
+      base = 0; height = d.value; cls='total'; running = d.value;
+    } else {
+      cls = d.type;
+      if(d.value>=0){ base = running; height = d.value; }
+      else { base = running + d.value; height = -d.value; }
+      running += d.value;
+    }
+    const barH = (height/maxV*220);
+    const barBottom = (base/maxV*220);
+    col.innerHTML = `
+      <div class="wf-bar ${cls}" style="height:${barH}px;margin-bottom:${barBottom}px;">
+        <div class="wf-val">${d.value>=0 && d.type!=='total' ? '+':''}${d.value.toLocaleString()}</div>
+      </div>
+      <div class="wf-label">${d.label}</div>`;
+    wrap.appendChild(col);
+  });
+})();
+
+// Heat matrix
+(function(){
+  const rows = [
+    {label:'Everyday family', vals:[104,98,86,71]},
+    {label:'Health & fitness', vals:[96,91,74,58]},
+    {label:'Indulgent treat', vals:[88,84,79,66]},
+    {label:'Kids lunchbox', vals:[112,102,90,80]},
+    {label:'On-the-go', vals:[64,72,95,118]}
+  ];
+  function colorFor(v){
+    if(v<75) return '#D14B3D';
+    if(v<90) return '#E2A03F';
+    if(v<=110) return '#2FAE88';
+    return '#123328';
+  }
+  const body = document.getElementById('heatBody');
+  rows.forEach(r=>{
+    const tr = document.createElement('tr');
+    let cells = `<td style="text-align:left;font-size:11.5px;font-weight:600;padding:6px;">${r.label}</td>`;
+    r.vals.forEach(v=>{
+      cells += `<td><div class="heat-cell" style="background:${colorFor(v)};">${v}%</div></td>`;
+    });
+    tr.innerHTML = cells;
+    body.appendChild(tr);
+  });
+})();
+</script>
+</body>
+</html>

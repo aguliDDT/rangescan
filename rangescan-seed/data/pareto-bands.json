@@ -1,0 +1,44 @@
+[
+  {
+    "band": "0\u201320%",
+    "pctOfSkus": 4,
+    "pctOfSales": 21,
+    "salesPerSkuGBP": 1090427
+  },
+  {
+    "band": "21\u201330%",
+    "pctOfSkus": 3,
+    "pctOfSales": 10,
+    "salesPerSkuGBP": 699635
+  },
+  {
+    "band": "31\u201350%",
+    "pctOfSkus": 9,
+    "pctOfSales": 20,
+    "salesPerSkuGBP": 408808
+  },
+  {
+    "band": "51\u201370%",
+    "pctOfSkus": 16,
+    "pctOfSales": 19,
+    "salesPerSkuGBP": 226919
+  },
+  {
+    "band": "71\u201380%",
+    "pctOfSkus": 13,
+    "pctOfSales": 10,
+    "salesPerSkuGBP": 152554
+  },
+  {
+    "band": "81\u201390%",
+    "pctOfSkus": 17,
+    "pctOfSales": 10,
+    "salesPerSkuGBP": 113522
+  },
+  {
+    "band": "91\u2013100%",
+    "pctOfSkus": 39,
+    "pctOfSales": 10,
+    "salesPerSkuGBP": 47052
+  }
+]

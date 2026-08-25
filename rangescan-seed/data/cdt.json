@@ -1,0 +1,114 @@
+[
+  {
+    "stage": 1,
+    "stageLabel": "Portion format",
+    "nodeLabel": "Big Pack",
+    "weightPct": 38,
+    "isLeaf": false
+  },
+  {
+    "stage": 1,
+    "stageLabel": "Portion format",
+    "nodeLabel": "Multipack",
+    "weightPct": 41,
+    "isLeaf": false
+  },
+  {
+    "stage": 1,
+    "stageLabel": "Portion format",
+    "nodeLabel": "Single Portion",
+    "weightPct": 21,
+    "isLeaf": false
+  },
+  {
+    "stage": 2,
+    "stageLabel": "Dietary base",
+    "nodeLabel": "Dairy - Cow",
+    "weightPct": 76,
+    "isLeaf": false
+  },
+  {
+    "stage": 2,
+    "stageLabel": "Dietary base",
+    "nodeLabel": "Plant - Soya/Oat",
+    "weightPct": 18,
+    "isLeaf": false
+  },
+  {
+    "stage": 2,
+    "stageLabel": "Dietary base",
+    "nodeLabel": "Dairy - Goat/Sheep",
+    "weightPct": 6,
+    "isLeaf": false
+  },
+  {
+    "stage": 3,
+    "stageLabel": "Flavour profile",
+    "nodeLabel": "Flavoured",
+    "weightPct": 52,
+    "isLeaf": false
+  },
+  {
+    "stage": 3,
+    "stageLabel": "Flavour profile",
+    "nodeLabel": "Natural",
+    "weightPct": 31,
+    "isLeaf": false
+  },
+  {
+    "stage": 3,
+    "stageLabel": "Flavour profile",
+    "nodeLabel": "Kids",
+    "weightPct": 17,
+    "isLeaf": false
+  },
+  {
+    "stage": 4,
+    "stageLabel": "Attribute",
+    "nodeLabel": "Standard",
+    "weightPct": 53,
+    "isLeaf": false
+  },
+  {
+    "stage": 4,
+    "stageLabel": "Attribute",
+    "nodeLabel": "High Protein",
+    "weightPct": 28,
+    "isLeaf": false
+  },
+  {
+    "stage": 4,
+    "stageLabel": "Attribute",
+    "nodeLabel": "Low Sugar",
+    "weightPct": 19,
+    "isLeaf": false
+  },
+  {
+    "stage": 5,
+    "stageLabel": "Need-state (leaf)",
+    "nodeLabel": "Health & Fitness",
+    "weightPct": 25,
+    "isLeaf": true
+  },
+  {
+    "stage": 5,
+    "stageLabel": "Need-state (leaf)",
+    "nodeLabel": "Indulgent Treat",
+    "weightPct": 35,
+    "isLeaf": true
+  },
+  {
+    "stage": 5,
+    "stageLabel": "Need-state (leaf)",
+    "nodeLabel": "Everyday Family",
+    "weightPct": 30,
+    "isLeaf": true
+  },
+  {
+    "stage": 5,
+    "stageLabel": "Need-state (leaf)",
+    "nodeLabel": "Kids Lunchbox",
+    "weightPct": 10,
+    "isLeaf": true
+  }
+]

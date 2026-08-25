@@ -1,0 +1,32 @@
+[
+  {
+    "label": "Current range",
+    "valueGBP": 5376053,
+    "type": "total"
+  },
+  {
+    "label": "Delists",
+    "valueGBP": -160094,
+    "type": "negative"
+  },
+  {
+    "label": "Substitution effect",
+    "valueGBP": 104061,
+    "type": "positive"
+  },
+  {
+    "label": "New lines added",
+    "valueGBP": 51230,
+    "type": "positive"
+  },
+  {
+    "label": "Higher sales density",
+    "valueGBP": 96769,
+    "type": "positive"
+  },
+  {
+    "label": "New proposed range",
+    "valueGBP": 5468020,
+    "type": "total"
+  }
+]

@@ -1,0 +1,98 @@
+[
+  {
+    "needState": "Health & Fitness",
+    "storeFormat": "Hypermarket",
+    "spaceAllocatedCm": 303,
+    "spaceIndexPct": 78
+  },
+  {
+    "needState": "Indulgent Treat",
+    "storeFormat": "Hypermarket",
+    "spaceAllocatedCm": 268,
+    "spaceIndexPct": 94
+  },
+  {
+    "needState": "Everyday Family",
+    "storeFormat": "Hypermarket",
+    "spaceAllocatedCm": 266,
+    "spaceIndexPct": 109
+  },
+  {
+    "needState": "Kids Lunchbox",
+    "storeFormat": "Hypermarket",
+    "spaceAllocatedCm": 134,
+    "spaceIndexPct": 97
+  },
+  {
+    "needState": "Health & Fitness",
+    "storeFormat": "Supermarket",
+    "spaceAllocatedCm": 237,
+    "spaceIndexPct": 94
+  },
+  {
+    "needState": "Indulgent Treat",
+    "storeFormat": "Supermarket",
+    "spaceAllocatedCm": 175,
+    "spaceIndexPct": 94
+  },
+  {
+    "needState": "Everyday Family",
+    "storeFormat": "Supermarket",
+    "spaceAllocatedCm": 162,
+    "spaceIndexPct": 102
+  },
+  {
+    "needState": "Kids Lunchbox",
+    "storeFormat": "Supermarket",
+    "spaceAllocatedCm": 72,
+    "spaceIndexPct": 81
+  },
+  {
+    "needState": "Health & Fitness",
+    "storeFormat": "Metro",
+    "spaceAllocatedCm": 95,
+    "spaceIndexPct": 90
+  },
+  {
+    "needState": "Indulgent Treat",
+    "storeFormat": "Metro",
+    "spaceAllocatedCm": 61,
+    "spaceIndexPct": 78
+  },
+  {
+    "needState": "Everyday Family",
+    "storeFormat": "Metro",
+    "spaceAllocatedCm": 64,
+    "spaceIndexPct": 97
+  },
+  {
+    "needState": "Kids Lunchbox",
+    "storeFormat": "Metro",
+    "spaceAllocatedCm": 37,
+    "spaceIndexPct": 99
+  },
+  {
+    "needState": "Health & Fitness",
+    "storeFormat": "Small",
+    "spaceAllocatedCm": 42,
+    "spaceIndexPct": 81
+  },
+  {
+    "needState": "Indulgent Treat",
+    "storeFormat": "Small",
+    "spaceAllocatedCm": 43,
+    "spaceIndexPct": 114
+  },
+  {
+    "needState": "Everyday Family",
+    "storeFormat": "Small",
+    "spaceAllocatedCm": 33,
+    "spaceIndexPct": 101
+  },
+  {
+    "needState": "Kids Lunchbox",
+    "storeFormat": "Small",
+    "spaceAllocatedCm": 19,
+    "spaceIndexPct": 103
+  }
+]

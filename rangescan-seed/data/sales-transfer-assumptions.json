@@ -1,0 +1,20 @@
+[
+  {
+    "scenario": "Conservative",
+    "transferToRetainedPct": 50,
+    "transferToNpdPct": 15,
+    "genuineLossPct": 35
+  },
+  {
+    "scenario": "Base",
+    "transferToRetainedPct": 65,
+    "transferToNpdPct": 20,
+    "genuineLossPct": 15
+  },
+  {
+    "scenario": "Aggressive",
+    "transferToRetainedPct": 78,
+    "transferToNpdPct": 17,
+    "genuineLossPct": 5
+  }
+]

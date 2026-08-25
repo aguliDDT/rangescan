@@ -1,0 +1,110 @@
+[
+  {
+    "id": "DUP-001",
+    "skuIdA": "OB-14",
+    "skuIdB": "BR-20",
+    "needState": "Indulgent Treat",
+    "sharedAttributes": [
+      "need-state",
+      "flavour profile",
+      "pack size"
+    ],
+    "transferRiskPct": 14,
+    "recommendation": "Retain both \u2014 materially different shopper/occasion"
+  },
+  {
+    "id": "DUP-002",
+    "skuIdA": "OB-18",
+    "skuIdB": "OB-03",
+    "needState": "Indulgent Treat",
+    "sharedAttributes": [
+      "need-state",
+      "flavour profile",
+      "pack size",
+      "brand tier"
+    ],
+    "transferRiskPct": 63,
+    "recommendation": "Delist lower performer (Own Brand \u2013 Product 03)"
+  },
+  {
+    "id": "DUP-003",
+    "skuIdA": "BR-04",
+    "skuIdB": "BR-47",
+    "needState": "Health & Fitness",
+    "sharedAttributes": [
+      "need-state",
+      "flavour profile",
+      "pack size",
+      "brand tier"
+    ],
+    "transferRiskPct": 63,
+    "recommendation": "Delist lower performer (Branded \u2013 Product 47)"
+  },
+  {
+    "id": "DUP-004",
+    "skuIdA": "OB-26",
+    "skuIdB": "BR-08",
+    "needState": "Indulgent Treat",
+    "sharedAttributes": [
+      "need-state",
+      "flavour profile",
+      "pack size"
+    ],
+    "transferRiskPct": 32,
+    "recommendation": "Consolidate to a single SKU"
+  },
+  {
+    "id": "DUP-005",
+    "skuIdA": "BR-75",
+    "skuIdB": "BR-67",
+    "needState": "Everyday Family",
+    "sharedAttributes": [
+      "need-state",
+      "flavour profile",
+      "pack size",
+      "brand tier"
+    ],
+    "transferRiskPct": 56,
+    "recommendation": "Delist lower performer (Branded \u2013 Product 67)"
+  },
+  {
+    "id": "DUP-006",
+    "skuIdA": "BR-13",
+    "skuIdB": "BR-27",
+    "needState": "Everyday Family",
+    "sharedAttributes": [
+      "need-state",
+      "flavour profile",
+      "pack size",
+      "brand tier"
+    ],
+    "transferRiskPct": 67,
+    "recommendation": "Delist lower performer (Branded \u2013 Product 27)"
+  },
+  {
+    "id": "DUP-007",
+    "skuIdA": "BR-16",
+    "skuIdB": "OB-19",
+    "needState": "Indulgent Treat",
+    "sharedAttributes": [
+      "need-state",
+      "flavour profile",
+      "pack size"
+    ],
+    "transferRiskPct": 21,
+    "recommendation": "Retain both \u2014 materially different shopper/occasion"
+  },
+  {
+    "id": "DUP-008",
+    "skuIdA": "BR-28",
+    "skuIdB": "OB-30",
+    "needState": "Indulgent Treat",
+    "sharedAttributes": [
+      "need-state",
+      "flavour profile",
+      "pack size"
+    ],
+    "transferRiskPct": 38,
+    "recommendation": "Consolidate to a single SKU"
+  }
+]
