@@ -1,0 +1,46 @@
+@import "tailwindcss";
+
+@import "@fontsource/fraunces/400.css";
+@import "@fontsource/fraunces/500.css";
+@import "@fontsource/fraunces/600.css";
+@import "@fontsource/fraunces/700.css";
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/500.css";
+@import "@fontsource/inter/600.css";
+@import "@fontsource/inter/700.css";
+@import "@fontsource/ibm-plex-mono/400.css";
+@import "@fontsource/ibm-plex-mono/500.css";
+@import "@fontsource/ibm-plex-mono/600.css";
+
+@theme {
+  --color-ink: #0e211a;
+  --color-pine: #0f2a21;
+  --color-emerald: #1f8a6e;
+  --color-amber: #e2a03f;
+  --color-red: #d14b3d;
+  --color-canvas: #f3f5f1;
+  --color-surface: #ffffff;
+  --color-border: #e2e7e1;
+  --color-text-mute: #5b665f;
+
+  --font-display: "Fraunces", serif;
+  --font-ui: "Inter", sans-serif;
+  --font-data: "IBM Plex Mono", monospace;
+}
+
+body {
+  margin: 0;
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-ui);
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.font-data {
+  font-variant-numeric: tabular-nums;
+}
